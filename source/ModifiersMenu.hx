@@ -54,26 +54,6 @@ class ModifiersMenu extends MusicBeatState
 		add(grpControls);
 		for (i in 0...controlsStrings.length)
 		{
-			switch (controlsStrings[i].substring(3).split(" || ")[0])
-			{
-				case "Dad Notes Do Damage":
-					if (FlxG.save.data.dadnotesdodamage == null)
-						FlxG.save.data.dadnotesdodamage = controlsStrings[curSelected].split(" || ")[2];
-				case "Dad Notes Can Kill":
-					if (FlxG.save.data.dadnotescankill == null)
-						FlxG.save.data.dadnotescankill = controlsStrings[curSelected].split(" || ")[2];
-				case "Dad Notes Visible":
-					if (FlxG.save.data.dadnotesvisible == null)
-						FlxG.save.data.dadnotesvisible = controlsStrings[curSelected].split(" || ")[2];
-				case "BF Notes Visible":
-					if (FlxG.save.data.bfnotesvisible == null)
-						FlxG.save.data.bfnotesvisible = controlsStrings[curSelected].split(" || ")[2];
-				case "Stuns Block Inputs":
-					if (FlxG.save.data.stunsblockinputs == null)
-						FlxG.save.data.stunsblockinputs = controlsStrings[curSelected].split(" || ")[2];
-			}
-			FlxG.save.flush();
-
 			if (controlsStrings[i].indexOf('set') != -1)
 			{
 				var controlLabel:Alphabet = new Alphabet(0, (70 * i) + 30, controlsStrings[i].substring(3).split(" || ")[0], true, false);
@@ -104,6 +84,14 @@ class ModifiersMenu extends MusicBeatState
 				case "Dad Notes Can Kill":
 					FlxG.save.data.dadnotescankill = !FlxG.save.data.dadnotescankill;
 					optionsText.text = FlxG.save.data.dadnotescankill;
+				case "Damage from Dad Notes":
+					FlxG.save.data.damagefromdadnotes = 10;
+					optionsText.text = "1";
+				case "No Health Gain":
+					FlxG.save.data.nohealthgain += 50;
+					if (FlxG.save.data.nohealthgain > 100)
+						FlxG.save.data.nohealthgain = 0;
+					optionsText.text = FlxG.save.data.nohealthgain == 0 ? "OFF" : FlxG.save.data.nohealthgain + "%";
 				case "Dad Notes Visible":
 					FlxG.save.data.dadnotesvisible = !FlxG.save.data.dadnotesvisible;
 					optionsText.text = FlxG.save.data.dadnotesvisible;
@@ -124,7 +112,24 @@ class ModifiersMenu extends MusicBeatState
 			changeSelection(-1);
 		if (controls.DOWN_P)
 			changeSelection(1);
+		if (controls.LEFT_P) {
+			switch (controlsStrings[curSelected].substring(3).split(" || ")[0]) {
+				case "Damage from Dad Notes":
+					FlxG.save.data.damagefromdadnotes -= 1;
+					if (FlxG.save.data.damagefromdadnotes < 1)
+						FlxG.save.data.damagefromdadnotes = 1;
+					optionsText.text = Std.string(FlxG.save.data.damagefromdadnotes / 10);
+			}
+		}
+		if (controls.RIGHT_P) {
+			switch (controlsStrings[curSelected].substring(3).split(" || ")[0]) {
+				case "Damage from Dad Notes":
+					FlxG.save.data.damagefromdadnotes += 1;
+					optionsText.text = Std.string(FlxG.save.data.damagefromdadnotes / 10);
+			}
+		}
 	}
+
 
 	function waitingInput():Void
 	{
@@ -163,6 +168,10 @@ class ModifiersMenu extends MusicBeatState
 				optionsText.text = FlxG.save.data.dadnotesdodamage;
 			case "Dad Notes Can Kill":
 				optionsText.text = FlxG.save.data.dadnotescankill;
+			case "Damage from Dad Notes":
+				optionsText.text = Std.string(FlxG.save.data.damagefromdadnotes / 10);
+			case "No Health Gain":
+				optionsText.text = FlxG.save.data.nohealthgain == 0 ? "OFF" : FlxG.save.data.nohealthgain + "%";
 			case "BF Notes Visible":
 				optionsText.text = FlxG.save.data.bfnotesvisible;
 			case "Dad Notes Visible":
