@@ -2389,6 +2389,7 @@ class PlayState extends MusicBeatState
 
 	public function endSong():Void
 	{
+		trace("Song1");
 /*openSubState(new EndScreenSubstate(totalAccuracy, songNotesHit, songNotesMissed, miss, shit, bad, good, sick, songScore, camHUD));
 		persistentUpdate = false;
 		persistentDraw = false;*/
@@ -2400,6 +2401,7 @@ class PlayState extends MusicBeatState
 		if (SONG.validScore)
 		{
 			#if !switch
+			trace("Song2");
 			Highscore.saveScore(SONG.song, songScore, storyDifficulty);
 			#end
 		}
@@ -2409,12 +2411,14 @@ class PlayState extends MusicBeatState
 		blackBox.alpha = 0;
 		FlxTween.tween(blackBox, {alpha: 0.7}, 0.3, {ease: FlxEase.expoInOut});
 		blackBox.cameras = [camHUD];
+		trace("Song3");
 		var stats = new FlxText(-100, -100, 0, "Stats: LOADING....");
 		stats.setFormat(Paths.font("vcr.ttf"), 50, FlxColor.WHITE, LEFT);
 		add(stats);
 		// rating
 		var accuracy = FlxMath.roundDecimal((totalAccuracy / (songNotesHit + songNotesMissed) * 100), 2);
 
+		trace("Song4");
 		if (Math.isNaN(accuracy))
 				{
 					accuracy = 100;
@@ -2459,12 +2463,15 @@ class PlayState extends MusicBeatState
 					rating = rating + "(FC)";
 				}
 
+		trace("Song4.5");
 		stats.text = 'Overall Rating: ' + rating + '\n Accuracy: ' + accuracy + '%\n Sicks: ' + sick + '\n Goods:' + good + '\n Bads:' + bad + '\n Shits:' + shit + '\n Misses: ' + songNotesMissed + '\n Final Score: ' + songScore + '\n Press ENTER to continue.';
 		stats.screenCenter();
 		stats.cameras = [camHUD];
+		trace("Song5");
 
 		// transferring to next song(or back to menu)
 		endingSong = true;
+		trace("SONG6???");
 	}
 
 	private function popUpScore(strumtime:Float):Void
@@ -2495,17 +2502,17 @@ class PlayState extends MusicBeatState
 				trace("miss added");
 			case "shit":
 				shit++;
-				totalAccuracy += 0.3; // absolute dogshit
+				totalAccuracy += 3 / 10; // absolute dogshit
 				score = -50;
 				//trace("shit added");
 			case "bad":
 				bad++;
-				totalAccuracy += 0.5; // ass. 50%
+				totalAccuracy += 5 / 10; // ass. 50%
 				score = 30;
 				//trace("bad added");
 			case "good":
 				good++;
-				totalAccuracy += 0.9; // u aight
+				totalAccuracy += 9 / 10; // u aight
 				score = 100;
 			//	trace("good added");
 			case "sick":
@@ -2795,6 +2802,7 @@ class PlayState extends MusicBeatState
 					if (daNote.canBeHit && daNote.mustPress && daNote.isSustainNote)
 					{
 						if (FlxG.save.data.botplay) {
+
 						switch (daNote.noteData)
 						{
 							// NOTES YOU ARE HOLDING
@@ -2838,48 +2846,53 @@ class PlayState extends MusicBeatState
 				boyfriend.playAnim('idle');
 			}
 		}
-
 		playerStrums.forEach(function(spr:FlxSprite)
 		{
+			if (!FlxG.save.data.botplay) {
 			switch (spr.ID)
 			{
 				case 0:
-					if ((leftP || FlxG.save.data.botplay) && spr.animation.curAnim.name != 'confirm')
+					if (leftP && spr.animation.curAnim.name != 'confirm')
 						spr.animation.play('pressed');
-					if ((leftR || FlxG.save.data.botplay))
+					if (leftR)
 						spr.animation.play('static');
 				case 1:
-					if ((downP || FlxG.save.data.botplay)  && spr.animation.curAnim.name != 'confirm')
+					if (downP && spr.animation.curAnim.name != 'confirm')
 						spr.animation.play('pressed');
-					if ((downR || FlxG.save.data.botplay))
+					if (downR)
 						spr.animation.play('static');
 				case 2:
-					if ((upP || FlxG.save.data.botplay) && spr.animation.curAnim.name != 'confirm')
+					if (upP && spr.animation.curAnim.name != 'confirm')
 						spr.animation.play('pressed');
-					if ((upR || FlxG.save.data.botplay))
+					if (upR)
 						spr.animation.play('static');
 				case 3:
-					if ((rightP || FlxG.save.data.botplay) && spr.animation.curAnim.name != 'confirm')
+					if (rightP && spr.animation.curAnim.name != 'confirm')
 						spr.animation.play('pressed');
-					if ((rightR || FlxG.save.data.botplay))
+					if (rightR)
 						spr.animation.play('static');
 			}
-			try {
-			if (spr.animation.curAnim.name == 'confirm' && !curStage.startsWith('school'))
+		} else {
+			if (strumming2[spr.ID])
 			{
-				spr.centerOffsets();
-				spr.offset.x -= 13;
-				spr.offset.y -= 13;
+				spr.animation.play("confirm");
 			}
-			else {
-				spr.centerOffsets();
-			}
+		}
+		try {
+		if (spr.animation.curAnim.name == 'confirm' && !curStage.startsWith('school'))
+		{
+			spr.centerOffsets();
+			spr.offset.x -= 13;
+			spr.offset.y -= 13;
+		}
+		else {
+			spr.centerOffsets();
+		}
 		} catch(e) {
 			trace("oh shit daddy~ smtn went wrong uwu~ lil fucky wucky teehee~");
 		}
 		});
 	}
-
 
 	function noteMiss(direction:Int = 1, note:Note, fromfall:Bool = false):Void
 		{
@@ -3037,6 +3050,8 @@ class PlayState extends MusicBeatState
 		var rightP = controls.RIGHT_P;
 		var downP = controls.DOWN_P;
 		var leftP = controls.LEFT_P;
+		if (FlxG.save.data.botplay)
+			return; // sike
 
 		// SEXY FAILSAFE (THANKS VM U A REAL ONE)
 		if (note == 'none') {
@@ -3140,6 +3155,8 @@ class PlayState extends MusicBeatState
 	function goodNoteHit(note:Note):Void
 	{
 		if (note.nType == 1) {
+			if (FlxG.save.data.botplay)
+				return;
 			trace("FIRE NOTE OH SHTIT");
 			health -= 1;
 		}
